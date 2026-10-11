@@ -3,61 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-function ScrollRevealText({ text }: { text: string }) {
-  const containerRef = useRef<HTMLParagraphElement>(null);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      
-      const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      
-      // Slower animation - more viewport range
-      const startOffset = windowHeight * 0.9;
-      const endOffset = windowHeight * 0.1;
-      
-      const totalDistance = startOffset - endOffset;
-      const currentPosition = startOffset - rect.top;
-      
-      const newProgress = Math.max(0, Math.min(1, currentPosition / totalDistance));
-      setProgress(newProgress);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Initial check
-    
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const words = text.split(" ");
-  
-  return (
-    <p
-      ref={containerRef}
-      className="text-3xl font-semibold leading-snug md:text-4xl lg:text-5xl"
-    >
-      {words.map((word, index) => {
-        const wordProgress = index / words.length;
-        const isRevealed = progress > wordProgress;
-        
-        return (
-          <span
-            key={index}
-            className="transition-colors duration-150"
-            style={{
-              color: isRevealed ? "var(--foreground)" : "#e4e4e7",
-            }}
-          >
-            {word}{index < words.length - 1 ? " " : ""}
-          </span>
-        );
-      })}
-    </p>
-  );
-}
-
 const sideImages = [
   {
     src: "/images/jp/g-tambaba.png",
@@ -87,11 +32,7 @@ const sideImages = [
 
 export function TechnologySection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const textSectionRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [textProgress, setTextProgress] = useState(0);
-  
-  const descriptionText = "O Imperador do Turismo nasceu perto do mar e cresceu conhecendo de perto as pessoas, os visitantes e as experiências que tornam João Pessoa tão especial. Mais do que indicar passeios, ajudamos cada viajante a aproveitar melhor o destino, com atendimento próximo, informações claras e opções que combinam com o seu estilo de viagem. Você escolhe como quer viver João Pessoa. Nós cuidamos do caminho.";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -103,21 +44,6 @@ export function TechnologySection() {
       const progress = Math.max(0, Math.min(1, scrolled / scrollableHeight));
       
       setScrollProgress(progress);
-
-      // Text scroll progress
-      if (textSectionRef.current) {
-        const textRect = textSectionRef.current.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        
-        const startOffset = windowHeight * 0.9;
-        const endOffset = windowHeight * 0.1;
-        
-        const totalDistance = startOffset - endOffset;
-        const currentPosition = startOffset - textRect.top;
-        
-        const newTextProgress = Math.max(0, Math.min(1, currentPosition / totalDistance));
-        setTextProgress(newTextProgress);
-      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -143,9 +69,6 @@ export function TechnologySection() {
   const sideTranslateRight = 100 - (imageProgress * 100); // 100% to 0%
   const borderRadius = imageProgress * 24; // 0px to 24px
   const gap = imageProgress * 16; // 0px to 16px
-
-  // Calculate grayscale for text section based on textProgress
-  const grayscaleAmount = Math.round((1 - textProgress) * 100);
 
   return (
     <section ref={sectionRef} className="relative bg-foreground">
@@ -273,20 +196,6 @@ export function TechnologySection() {
 
       {/* Scroll space to enable animation */}
       <div className="h-[200vh]" />
-
-      {/* Description Section with Background Image and Scroll Reveal */}
-      <div 
-        ref={textSectionRef}
-        className="relative overflow-hidden bg-background px-6 py-24 md:px-12 md:py-32 lg:px-20 lg:py-40"
-      >
-        {/* Background Image with Grayscale Filter */}
-        
-
-        {/* Text Content */}
-        <div className="relative z-10 mx-auto max-w-4xl">
-          <ScrollRevealText text={descriptionText} />
-        </div>
-      </div>
     </section>
   );
 }

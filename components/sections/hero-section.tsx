@@ -1,177 +1,71 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowDownRight } from "lucide-react";
 
-const sideImages = [
-  {
-    src: "/images/jp/cabo-branco.png",
-    alt: "Farol do Cabo Branco sobre as falésias em João Pessoa",
-    position: "left",
-    span: 1,
-  },
-  {
-    src: "/images/jp/jacare-sunset.png",
-    alt: "Pôr do sol na Praia do Jacaré com barcos ao fundo",
-    position: "left",
-    span: 1,
-  },
-  {
-    src: "/images/jp/seixas-pools.png",
-    alt: "Piscinas naturais de águas cristalinas na Praia do Seixas",
-    position: "right",
-    span: 1,
-  },
-  {
-    src: "/images/jp/buggy-praia.png",
-    alt: "Passeio de buggy pelo litoral sul da Paraíba",
-    position: "right",
-    span: 1,
-  },
-];
+import { GoogleRating } from "@/components/google-rating";
+import { useGoogleReviews } from "@/components/google-reviews-provider";
 
 export function HeroSection() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!sectionRef.current) return;
-      
-      const rect = sectionRef.current.getBoundingClientRect();
-      const scrollableHeight = window.innerHeight * 2;
-      const scrolled = -rect.top;
-      const progress = Math.max(0, Math.min(1, scrolled / scrollableHeight));
-      
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  // Image transforms start after the initial hero view (0.2 to 1)
-  const imageProgress = Math.max(0, Math.min(1, (scrollProgress - 0.2) / 0.8));
-  
-  // Smooth interpolations
-  const centerWidth = 100 - (imageProgress * 58); // 100% to 42%
-  const centerHeight = 100 - (imageProgress * 30); // 100% to 70%
-  const sideWidth = imageProgress * 22; // 0% to 22%
-  const sideOpacity = imageProgress;
-  const sideTranslateLeft = -100 + (imageProgress * 100); // -100% to 0%
-  const sideTranslateRight = 100 - (imageProgress * 100); // 100% to 0%
-  const borderRadius = imageProgress * 24; // 0px to 24px
-  const gap = imageProgress * 16; // 0px to 16px
-  
-  // Vertical offset for side columns to move them up on mobile
-  const sideTranslateY = -(imageProgress * 15); // Move up by 15% when fully expanded
+  const { data } = useGoogleReviews();
 
   return (
-    <section ref={sectionRef} className="relative bg-background">
-      {/* Sticky container for scroll animation */}
-      <div className="sticky top-0 h-screen h-dvh overflow-hidden">
-        <div className="flex h-full w-full items-center justify-center">
-          {/* Bento Grid Container */}
-          <div 
-            className="relative flex h-full w-full items-stretch justify-center"
-            style={{ gap: `${gap}px`, padding: `${imageProgress * 16}px` }}
-          >
-            
-            {/* Left Column */}
-            <div 
-              className="flex flex-col will-change-transform"
-              style={{
-                width: `${sideWidth}%`,
-                gap: `${gap}px`,
-                transform: `translateX(${sideTranslateLeft}%) translateY(${sideTranslateY}%)`,
-                opacity: sideOpacity,
-              }}
-            >
-              {sideImages.filter(img => img.position === "left").map((img, idx) => (
-                <div 
-                  key={idx} 
-                  className="relative overflow-hidden will-change-transform"
-                  style={{
-                    flex: img.span,
-                    borderRadius: `${borderRadius}px`,
-                  }}
-                >
-                  <Image
-                    src={img.src || "/placeholder.svg"}
-                    alt={img.alt}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
+    <section
+      className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-[#0b3650] text-white"
+      aria-labelledby="hero-title"
+    >
+      <Image
+        src="/images/jp/img-jp.jpg"
+        alt="Vista aérea da orla de João Pessoa e do mar azul da Paraíba"
+        fill
+        sizes="100vw"
+        className="-z-20 object-cover object-center"
+        priority
+      />
 
-            {/* Main Hero Image - Center */}
-            <div 
-              className="relative overflow-hidden will-change-transform"
-              style={{
-                width: `${centerWidth}%`,
-                height: `${centerHeight}%`,
-                flex: "0 0 auto",
-                borderRadius: `${borderRadius}px`,
-              }}
-            >
-              <Image
-                src="/images/jp/hero-catamara.png"
-                alt="Catamarã navegando pelo mar de João Pessoa ao entardecer"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,25,39,0.20)_0%,rgba(4,25,39,0.04)_35%,rgba(4,25,39,0.76)_100%)]" />
 
-            {/* Right Column */}
-            <div 
-              className="flex flex-col will-change-transform"
-              style={{
-                width: `${sideWidth}%`,
-                gap: `${gap}px`,
-                transform: `translateX(${sideTranslateRight}%) translateY(${sideTranslateY}%)`,
-                opacity: sideOpacity,
-              }}
-            >
-              {sideImages.filter(img => img.position === "right").map((img, idx) => (
-                <div 
-                  key={idx} 
-                  className="relative overflow-hidden will-change-transform"
-                  style={{
-                    flex: img.span,
-                    borderRadius: `${borderRadius}px`,
-                  }}
-                >
-                  <Image
-                    src={img.src || "/placeholder.svg"}
-                    alt={img.alt}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* Scroll space to enable animation */}
-      <div className="h-[200vh]" />
-
-      {/* Tagline Section */}
-      <div className="px-6 pt-32 pb-28 md:pt-48 md:px-12 md:pb-36 lg:px-20 lg:pt-56 lg:pb-44">
-        <p className="mx-auto max-w-2xl text-center text-2xl leading-relaxed text-muted-foreground md:text-3xl lg:text-[2.5rem] lg:leading-snug">
-          Mais que um passeio.
-          <br />
-          Uma experiência para lembrar.
+      <div className="mx-auto flex w-full max-w-[1600px] flex-col items-center px-5 pb-12 text-center sm:px-8 sm:pb-16 lg:px-12 lg:pb-20">
+        <p className="mb-4 text-[0.7rem] font-semibold uppercase tracking-[0.32em] text-white/80 sm:text-xs">
+          Paraíba, Brasil
         </p>
+
+        <div className="mb-5 flex items-center gap-3 text-white" aria-label="Avaliações no Google">
+          <GoogleRating
+            rating={data?.averageRating ?? null}
+            className="text-amber-300"
+            starClassName="size-4"
+          />
+          <span className="text-xs font-medium uppercase tracking-[0.18em] text-white/85">
+            Avaliações no Google
+            {data?.totalReviewCount != null && (
+              <span className="ml-2 text-white/65">({data.totalReviewCount})</span>
+            )}
+          </span>
+        </div>
+
+        <h1
+          id="hero-title"
+          className="text-balance text-[clamp(4rem,12vw,10.5rem)] font-semibold leading-[0.78] tracking-[-0.07em]"
+        >
+          João Pessoa
+        </h1>
+
+        <p className="mt-7 max-w-xl text-balance text-base font-medium leading-relaxed text-white/90 sm:text-xl">
+          Viva o melhor do litoral paraibano com passeios feitos para ficar na memória.
+        </p>
+
+        <Link
+          href="#products"
+          className="group mt-7 inline-flex min-h-13 items-center gap-5 rounded-full bg-white px-7 py-3 text-sm font-semibold text-[#0b2540] transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+        >
+          Explorar passeios
+          <ArrowDownRight
+            aria-hidden="true"
+            className="size-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:translate-y-0.5"
+          />
+        </Link>
       </div>
     </section>
   );
